@@ -104,6 +104,7 @@ export class AegisInterceptor {
                         fallbacks: [],
                         reason: `Session pinned to ${session.model} (message ${session.messageCount})`,
                         analysis,
+                        profile: this.config.activeProfile,
                     };
 
                     logger.debug(`Session ${sessionId}: pinned to ${session.model} (msg #${session.messageCount})`);
