@@ -1,0 +1,6 @@
+PASS Greeting got:EFFICIENT exp:EFFICIENT conf:0.088
+PASS Thanks got:EFFICIENT exp:EFFICIENT conf:0.088
+PASS SimpleYes got:EFFICIENT exp:EFFICIENT conf:0.103
+PASS Code got:BALANCED exp:BALANCED conf:0.310
+PASS Tech got:BALANCED exp:BALANCED conf:0.317
+PASS Reasoning got:REASONING exp:REASONING conf:0.349

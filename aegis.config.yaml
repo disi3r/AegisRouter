@@ -1,0 +1,351 @@
+# ─────────────────────────────────────────────────────────────
+# AEGIS Router — Configuration
+# Advanced Engineered Governance & Intelligence System
+# ─────────────────────────────────────────────────────────────
+#
+# This file controls the neural routing behavior of AEGIS.
+# Modify the weights, thresholds, and model mappings to tune
+# the routing engine for your specific infrastructure.
+#
+# Documentation: https://github.com/DisierTECH/AegisRouter
+# ─────────────────────────────────────────────────────────────
+
+version: "1.1.0"
+logLevel: "info"
+logFormat: "pretty" # Options: "pretty", "json"
+
+# ── Sigmoid Calibration ──────────────────────────────────────
+# Controls the normalization curve that maps raw scores → confidence.
+#   k:        Steepness (higher = sharper transition)
+#   midpoint: Score at which confidence = 50%
+calibration:
+  k: 10
+  midpoint: 0.25
+
+# ── Tier Thresholds ──────────────────────────────────────────
+# Confidence boundaries for tier classification.
+#   confidence < efficient       → EFFICIENT
+#   efficient ≤ confidence < balanced  → BALANCED
+#   balanced ≤ confidence < advanced   → ADVANCED
+#   confidence ≥ advanced        → REASONING (if strict)
+thresholds:
+  efficient: 0.25
+  balanced: 0.45
+  advanced: 0.72
+
+# ── Session Behavior ─────────────────────────────────────────
+sessionPinning: true        # Pin model per session for consistency
+autoEscalation: true        # Auto-upgrade to REASONING on heavy markers
+escalationThreshold: 2      # Number of cognitive markers for escalation
+activeProfile: "BALANCED"   # Options: ECO, BALANCED, PERFORMANCE
+
+# ── Tier → Model Mapping ─────────────────────────────────────
+# Map each tier to your local model infrastructure.
+# Modify these to match the models available in your openclaw.json providers.
+tiers:
+  EFFICIENT:
+    primary: "gemini-flash-1.5"
+    fallback:
+      - "llama-3-haiku"
+    maxContext: 32768
+    costPerM: 0.075 # $0.075 / 1M input tokens
+
+  BALANCED:
+    primary: "gpt-4o-mini"
+    fallback:
+      - "claude-3-haiku"
+      - "gemini-flash-1.5"
+    maxContext: 128000
+    costPerM: 0.150
+
+  ADVANCED:
+    primary: "claude-3-5-sonnet"
+    fallback:
+      - "gpt-4o"
+      - "qwen-2.5-coder-32b"
+    maxContext: 200000
+    costPerM: 3.00
+
+  REASONING:
+    primary: "o1-preview"
+    fallback:
+      - "deepseek-reasoner"
+      - "claude-3-5-sonnet"
+    maxContext: 128000
+    costPerM: 15.00
+
+# ── 15-Dimensional Scoring Configuration ─────────────────────
+# Each dimension has a weight (must sum to 1.0), a keyword list,
+# and optional regex patterns for advanced detection.
+dimensions:
+  # 1. Cognitive Load — Reasoning intensity
+  cognitiveLoad:
+    weight: 0.18
+    keywords:
+      - "prove"
+      - "theorem"
+      - "step by step"
+      - "analyze"
+      - "why does"
+      - "reasoning"
+      - "deduce"
+      - "infer"
+      - "logical"
+      - "conclusion"
+      - "hypothesis"
+      - "demonstrate"
+    patterns:
+      - "\\b(prove|disprove)\\s+that\\b"
+      - "\\bstep[- ]by[- ]step\\b"
+
+  # 2. Syntactic Complexity — Code & structure
+  syntacticComplexity:
+    weight: 0.15
+    keywords:
+      - "function"
+      - "async"
+      - "await"
+      - "import"
+      - "class"
+      - "interface"
+      - "const"
+      - "return"
+      - "typescript"
+      - "javascript"
+      - "python"
+      - "rust"
+      - "golang"
+      - "docker"
+      - "dockerfile"
+      - "sql"
+      - "api"
+      - "endpoint"
+      - "middleware"
+      - "refactor"
+      - "debug"
+    patterns:
+      - "```[a-z]*\\n"
+      - "\\b(def|fn|func|void|int|string)\\b"
+
+  # 3. Contextual Depth — Token usage / length
+  contextualDepth:
+    weight: 0.05
+    keywords: []
+    # This dimension uses a special built-in detector
+    # based on word count rather than keywords.
+
+  # 4. Agentic Intent — Action/tool usage
+  agenticIntent:
+    weight: 0.10
+    keywords:
+      - "run"
+      - "execute"
+      - "deploy"
+      - "install"
+      - "test"
+      - "fix"
+      - "edit"
+      - "update"
+      - "delete"
+      - "create file"
+      - "open terminal"
+      - "browse"
+      - "search"
+      - "download"
+      - "upload"
+      - "ssh"
+      - "git"
+
+  # 5. Technical Density — Domain jargon
+  technicalDensity:
+    weight: 0.12
+    keywords:
+      - "algorithm"
+      - "kubernetes"
+      - "distributed"
+      - "microservice"
+      - "database"
+      - "cache"
+      - "latency"
+      - "throughput"
+      - "concurrency"
+      - "mutex"
+      - "semaphore"
+      - "tcp"
+      - "http"
+      - "websocket"
+      - "grpc"
+      - "oauth"
+      - "jwt"
+      - "encryption"
+      - "hashing"
+
+  # 6. Creativity Index — Creative tasks
+  creativityIndex:
+    weight: 0.05
+    keywords:
+      - "story"
+      - "poem"
+      - "brainstorm"
+      - "imagine"
+      - "creative"
+      - "fiction"
+      - "narrative"
+      - "metaphor"
+      - "design"
+      - "aesthetic"
+      - "brand"
+      - "slogan"
+
+  # 7. Constraint Rigidness — Hard constraints
+  constraintRigidness:
+    weight: 0.05
+    keywords:
+      - "at most"
+      - "at least"
+      - "exactly"
+      - "maximum"
+      - "minimum"
+      - "must not"
+      - "required"
+      - "constraint"
+      - "limit"
+      - "budget"
+      - "deadline"
+    patterns:
+      - "O\\([a-z0-9^]+\\)"
+      - "\\b\\d+\\s*(ms|seconds|bytes|MB|GB)\\b"
+
+  # 8. Multi-turn State — Conversational continuity
+  multiTurnState:
+    weight: 0.04
+    keywords:
+      - "as i said"
+      - "like before"
+      - "continue"
+      - "keep going"
+      - "previously"
+      - "earlier"
+      - "the same"
+      - "modify that"
+      - "change it"
+      - "update the"
+      - "based on"
+      - "referring to"
+
+  # 9. Safety / Compliance — Guardrail triggers
+  safetyCompliance:
+    weight: 0.03
+    keywords:
+      - "safe"
+      - "secure"
+      - "compliant"
+      - "gdpr"
+      - "hipaa"
+      - "privacy"
+      - "encryption"
+      - "sanitize"
+      - "validate"
+      - "escape"
+      - "injection"
+      - "xss"
+      - "csrf"
+
+  # 10. Urgency / Imperative — Action commands
+  urgencyImperative:
+    weight: 0.03
+    keywords:
+      - "build"
+      - "implement"
+      - "write"
+      - "generate"
+      - "show me"
+      - "give me"
+      - "make"
+      - "convert"
+      - "transform"
+      - "calculate"
+      - "summarize"
+      - "explain"
+
+  # 11. Format Specificity — Structured output
+  formatSpecificity:
+    weight: 0.03
+    keywords:
+      - "json"
+      - "yaml"
+      - "xml"
+      - "csv"
+      - "markdown"
+      - "table"
+      - "schema"
+      - "format"
+      - "template"
+      - "structured"
+
+  # 12. Interrogative Depth — Question complexity
+  interrogativeDepth:
+    weight: 0.05
+    keywords:
+      - "how does"
+      - "why is"
+      - "what if"
+      - "compare"
+      - "difference between"
+      - "trade-off"
+      - "pros and cons"
+      - "when should"
+      - "which is better"
+
+  # 13. Referential Complexity — Context references
+  referentialComplexity:
+    weight: 0.02
+    keywords:
+      - "the docs"
+      - "the api"
+      - "the code above"
+      - "that function"
+      - "the error"
+      - "this file"
+      - "the previous"
+      - "according to"
+      - "as mentioned"
+
+  # 14. Negation / Exclusion — Constraint negation
+  negationExclusion:
+    weight: 0.02
+    keywords:
+      - "don't"
+      - "do not"
+      - "avoid"
+      - "without"
+      - "except"
+      - "exclude"
+      - "never"
+      - "remove"
+      - "skip"
+      - "ignore"
+
+  # 15. Phatic Function — Simple chat / greetings
+  phaticFunction:
+    weight: 0.05
+    keywords:
+      - "hello"
+      - "hi"
+      - "hey"
+      - "thanks"
+      - "thank you"
+      - "bye"
+      - "good morning"
+      - "good night"
+      - "what's up"
+      - "how are you"
+      - "ok"
+      - "sure"
+      - "yes"
+      - "no"
+      - "got it"
+      - "cool"
+      - "nice"
+      - "great"
+      - "awesome"

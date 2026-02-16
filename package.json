@@ -1,0 +1,44 @@
+{
+  "name": "@disier/aegis-router",
+  "version": "1.0.0",
+  "type": "module",
+  "description": "AEGIS — Native neural routing engine for OpenClaw Agent Swarms. Analyzes prompt complexity across 15 dimensions and dynamically selects the optimal model tier.",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch",
+    "start": "node dist/index.js",
+    "test": "node --experimental-vm-modules dist/tests/smoke.js",
+    "clean": "rimraf dist",
+    "prepublishOnly": "npm run build"
+  },
+  "keywords": [
+    "openclaw",
+    "agent-swarm",
+    "model-routing",
+    "aegis",
+    "llm",
+    "ai",
+    "middleware"
+  ],
+  "author": "DisierTECH",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/disi3r/AegisRouter.git"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "dependencies": {
+    "lru-cache": "^11.2.6",
+    "yaml": "^2.7.0",
+    "zod": "^3.24.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "rimraf": "^6.0.0",
+    "typescript": "^5.7.0"
+  }
+}
